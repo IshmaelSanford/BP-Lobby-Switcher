@@ -3,6 +3,7 @@ import keyboard
 import time
 import logging
 import os
+import threading
 from utils.image_search import find_image_on_screen
 from utils.window_detection import get_game_window
 from utils.resource_path import resource_path
@@ -19,6 +20,11 @@ class LobbyIterator:
         self.is_running = False
         self.assets_dir = resource_path('assets')
         self.image_name = 'enter_line.png'
+        
+        # Worker thread for non-blocking execution
+        self.trigger_event = threading.Event()
+        self.worker_thread = threading.Thread(target=self._worker_loop, daemon=True)
+        self.worker_thread.start()
 
     def set_config(self, start, end, keybind, loop):
         self.start_lobby = start
@@ -33,17 +39,29 @@ class LobbyIterator:
             self.direction = -1
             
         self.trigger_key = keybind
-        # Reset cached coordinates if config changes significantly? Maybe not needed.
 
-    def execute_step(self):
-        if not self.is_running:
-            return
+    def _worker_loop(self):
+        """Runs in a separate thread to prevent UI blocking."""
+        while True:
+            self.trigger_event.wait()
+            self.trigger_event.clear()
+            
+            if self.is_running:
+                try:
+                    self._execute_step_logic()
+                except Exception as e:
+                    logging.error(f"Error in macro step: {e}")
 
+    def _trigger_callback(self):
+        """Lightweight callback for the hotkey."""
+        if self.is_running:
+            self.trigger_event.set()
+
+    def _execute_step_logic(self):
         game_window = get_game_window()
         if not game_window:
             logging.warning("Game window not found.")
-            # Optional: return or continue anyway? User might be testing.
-            # return 
+            return 
 
         # 1. Press 'p'
         pyautogui.press('p')
@@ -94,6 +112,7 @@ class LobbyIterator:
                     logging.info("Reached end of range. Stopping.")
                     self.is_running = False 
                     self.current_lobby = self.start_lobby 
+                    # Note: UI won't update automatically here unless we use a callback or polling
 
     def press_enter_and_verify(self):
         # Look for lobby_change_1.png through lobby_change_6.png
@@ -125,7 +144,7 @@ class LobbyIterator:
         go_image_path = os.path.join(self.assets_dir, 'go.png')
         menu_check_image = os.path.join(self.assets_dir, self.image_name) # enter_line.png
         menu_closed_count = 0
-        menu_closed_threshold = 3 # If menu is not seen 3 times in a row, assume closed.
+        menu_closed_threshold = 3 
 
         for i in range(max_retries):
             time.sleep(0.5) 
@@ -159,17 +178,14 @@ class LobbyIterator:
                     logging.info("Menu assumed closed. Lobby change likely in progress or complete.")
                     return
             else:
-                menu_closed_count = 0 # Reset if we see it again
+                menu_closed_count = 0 
             
-                # If not detected:
                 logging.info(f"Lobby change not detected (Attempt {i+1}/{max_retries})...")
                 
-                # 1. Reclick text box
                 if self.cached_coordinates:
                      pyautogui.click(self.cached_coordinates)
                      time.sleep(0.1)
 
-                # 2. Find and click go.png
                 if os.path.exists(go_image_path):
                     go_coords = find_image_on_screen(go_image_path, confidence=0.8)
                     if go_coords:
@@ -186,13 +202,12 @@ class LobbyIterator:
 
     def start_listening(self):
         self.is_running = True
-        # We need to remove previous hotkey if it exists to avoid duplicates when changing settings
         try:
             keyboard.remove_hotkey(self.trigger_key)
         except:
             pass
         
-        keyboard.add_hotkey(self.trigger_key, self.execute_step)
+        keyboard.add_hotkey(self.trigger_key, self._trigger_callback)
         logging.info(f"Macro listening on {self.trigger_key}")
 
     def stop_listening(self):
