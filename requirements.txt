@@ -3,4 +3,5 @@ keyboard
 pygetwindow
 opencv-python
 pillow
-tk
+nicegui
+pywebview
