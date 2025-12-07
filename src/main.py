@@ -16,7 +16,18 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', date
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Serve assets
-assets_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets')
+if getattr(sys, 'frozen', False):
+    assets_path = resource_path('assets')
+else:
+    assets_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets')
+
+if not os.path.exists(assets_path):
+    # Fallback for some PyInstaller configurations where assets might be at root
+    if getattr(sys, 'frozen', False) and os.path.exists(os.path.join(sys._MEIPASS, 'assets')):
+        assets_path = os.path.join(sys._MEIPASS, 'assets')
+    else:
+        print(f"Warning: Assets path not found at {assets_path}")
+
 app.add_static_files('/assets', assets_path)
 
 # Login Page
