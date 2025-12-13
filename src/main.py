@@ -17,6 +17,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', date
 # Add src to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# Cleanup old updates
+if getattr(sys, 'frozen', False):
+    exe_path = sys.executable
+    old_exe = f"{exe_path}.old"
+    if os.path.exists(old_exe):
+        try:
+            os.remove(old_exe)
+            logging.info(f"Removed old executable: {old_exe}")
+        except Exception as e:
+            logging.warning(f"Failed to remove old executable: {e}")
+
 # Serve assets
 if getattr(sys, 'frozen', False):
     assets_path = resource_path('assets')

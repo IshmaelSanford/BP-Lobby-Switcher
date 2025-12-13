@@ -71,15 +71,16 @@ def restart_and_update(new_exe_path):
     
     # Batch script to:
     # 1. Wait for this process to end
-    # 2. Delete the old exe
+    # 2. Rename the old exe to .old (more reliable than delete)
     # 3. Move the new exe to the old location
     # 4. Start the new exe
     # 5. Delete itself
     bat_script = f"""
 @echo off
 timeout /t 3 /nobreak > NUL
-del "{current_exe}"
-move "{new_exe_path}" "{current_exe}"
+if exist "{current_exe}.old" del "{current_exe}.old"
+move /y "{current_exe}" "{current_exe}.old"
+move /y "{new_exe_path}" "{current_exe}"
 start "" "{current_exe}"
 del "%~f0"
 """

@@ -69,12 +69,12 @@ class ClassSwitcher:
             self.is_listening = False
             logging.info("Class Switcher stopped.")
 
-    def _click_image(self, image_name, retries=3, delay=0.04, config_key=None):
+    def _click_image(self, image_name, retries=3, delay=0.04, config_key=None, grayscale=True, confidence=0.7):
         image_path = os.path.join(self.assets_dir, image_name)
         
         # 1. Try to find the image
         for i in range(retries):
-            coords = find_image_on_screen(image_path, confidence=0.8)
+            coords = find_image_on_screen(image_path, confidence=confidence, grayscale=grayscale)
             if coords:
                 x, y = coords
                 logging.info(f"Found {image_name} at ({x}, {y}). Clicking.")

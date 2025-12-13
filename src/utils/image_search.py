@@ -49,10 +49,25 @@ def find_image_on_screen(image_path, confidence=0.8, grayscale=False):
             
             # locateCenterOnScreen can take a PIL image
             location = pyautogui.locateCenterOnScreen(resized_img, confidence=confidence, grayscale=grayscale)
+            
+            # If scaled search fails, try original image as fallback
+            if not location:
+                 location = pyautogui.locateCenterOnScreen(image_path, confidence=confidence, grayscale=grayscale)
+            
             return location
 
     except pyautogui.ImageNotFoundException:
-        return None
+        # If exception was raised (some versions do this instead of returning None), try fallback here too if needed
+        # But usually locateCenterOnScreen returns None or raises. 
+        # If we are here, it raised. Let's try original if we haven't.
+        if 0.98 < scale < 1.02:
+             return None
+        
+        try:
+            return pyautogui.locateCenterOnScreen(image_path, confidence=confidence, grayscale=grayscale)
+        except:
+            return None
+
     except Exception as e:
         logging.error(f"Error finding image: {e}")
         return None
