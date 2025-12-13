@@ -27,16 +27,16 @@ def main_layout():
         with ui.tab_panels(tabs, value=lobby_tab).classes('w-full flex-1 h-full bg-transparent p-0 overflow-hidden'):
             
             # Lobby Page - Handles its own layout/scrolling
-            with ui.tab_panel(lobby_tab).classes('w-full h-full p-0 overflow-y-auto pb-24'): # pb-24 for floating panel space
+            with ui.tab_panel(lobby_tab).classes('w-full h-full p-0 overflow-y-auto pb-48'): # pb-48 for floating panel space
                 lobby_page()
             
             # Logs Page
             with ui.tab_panel(logs_tab).classes('w-full h-full p-0 overflow-hidden'):
-                with ui.column().classes('w-full h-full p-4 pb-24'):
+                with ui.column().classes('w-full h-full p-4 pb-48'):
                     LogView().render()
             
             # Settings Page
-            with ui.tab_panel(settings_tab).classes('w-full h-full p-0 overflow-y-auto pb-24'):
+            with ui.tab_panel(settings_tab).classes('w-full h-full p-0 overflow-y-auto pb-48'):
                 settings_page()
 
         # Floating Bottom Panel - Compact

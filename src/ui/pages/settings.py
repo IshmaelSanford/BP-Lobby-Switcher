@@ -48,3 +48,6 @@ def settings_page():
                         ui.label('admin@gmail.com').classes('text-xs text-[var(--clr-surface-a50)]')
                 
                 ui.button('Log Out', on_click=lambda: ui.navigate.to('/')).props('flat color=red icon=logout').classes('font-bold')
+
+        # Spacer for floating dock
+        ui.element('div').classes('w-full h-64')

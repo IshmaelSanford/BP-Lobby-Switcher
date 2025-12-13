@@ -2,9 +2,10 @@ from nicegui import ui
 import logging
 
 class NiceGuiLogHandler(logging.Handler):
-    def __init__(self, container):
+    def __init__(self, log_container, scroll_container=None):
         super().__init__()
-        self.container = container
+        self.log_container = log_container
+        self.scroll_container = scroll_container
 
     def emit(self, record):
         msg = self.format(record)
@@ -18,10 +19,11 @@ class NiceGuiLogHandler(logging.Handler):
             color = 'text-[var(--clr-success-a10)]'
         
         def append():
-            if self.container:
-                with self.container:
+            if self.log_container:
+                with self.log_container:
                     ui.label(msg).classes(f'{color} font-mono text-xs')
-                self.container.scroll_to(percent=1.0)
+                if self.scroll_container:
+                    self.scroll_container.scroll_to(percent=1.0)
         
         # Run on UI thread
         append()
@@ -29,14 +31,18 @@ class NiceGuiLogHandler(logging.Handler):
 class LogView:
     def __init__(self):
         self.container = None
+        self.log_list = None
 
     def render(self):
         # Use theme variables for background and border
         with ui.column().classes('w-full h-full bg-[var(--clr-surface-a0)] rounded-lg p-2 border border-[var(--clr-surface-a20)]'):
             self.container = ui.scroll_area().classes('w-full h-full')
-            
+            with self.container:
+                # Add padding bottom to ensure last logs are visible above floating dock
+                self.log_list = ui.column().classes('w-full min-h-full')
+
             # Setup Logging
-            handler = NiceGuiLogHandler(self.container)
+            handler = NiceGuiLogHandler(self.log_list, self.container)
             handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s', datefmt='%H:%M:%S'))
             logger = logging.getLogger()
             logger.setLevel(logging.INFO) # Ensure INFO logs are captured
