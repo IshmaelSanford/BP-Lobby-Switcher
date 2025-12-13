@@ -1,5 +1,5 @@
 from nicegui import ui
-from state import iterator
+from state import iterator, vote_macro
 import pyautogui
 
 def lobby_page():
@@ -37,6 +37,21 @@ def lobby_page():
                 with ui.row().classes('items-center ml-auto'):
                     loop_switch = ui.switch().props('color=purple keep-color').classes('mr-2')
                     ui.label('LOOP').classes('text-xs font-bold text-[var(--clr-surface-a50)] mr-2')
+
+            # Vote Macro Toggle
+            with ui.row().classes('w-full gap-4 items-center bg-[var(--clr-surface-a0)] p-3 rounded-2xl border border-[var(--clr-surface-a20)]'):
+                ui.icon('how_to_vote', color='grey').classes('ml-2')
+                ui.label('AUTO VOTE').classes('flex-1 font-bold text-[var(--clr-light-a0)]')
+                
+                def toggle_vote(e):
+                    if e.value:
+                        vote_macro.start()
+                        ui.notify('Auto Vote Enabled', color='positive')
+                    else:
+                        vote_macro.stop()
+                        ui.notify('Auto Vote Disabled', color='warning')
+
+                ui.switch(on_change=toggle_vote).props('color=cyan keep-color').classes('mr-2')
 
             # Action Button
             def toggle_macro():
