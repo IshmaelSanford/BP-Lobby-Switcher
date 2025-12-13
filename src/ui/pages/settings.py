@@ -1,4 +1,6 @@
 from nicegui import ui
+from ui.components.updater_ui import show_update_dialog
+from version import APP_VERSION
 
 def settings_page():
     with ui.column().classes('w-full h-full p-6 gap-6'):
@@ -24,6 +26,16 @@ def settings_page():
             with ui.row().classes('w-full justify-between items-center'):
                 ui.label('Notifications').classes('text-[var(--clr-light-a0)]')
                 ui.switch(value=True).props('color=purple')
+
+        with ui.card().classes('w-full bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a20)] rounded-[24px] p-6 shadow-lg'):
+            ui.label('Updates').classes('text-lg font-bold text-[var(--clr-surface-a60)] mb-4')
+            
+            with ui.row().classes('w-full justify-between items-center'):
+                with ui.column().classes('gap-0'):
+                    ui.label('Current Version').classes('text-[var(--clr-light-a0)]')
+                    ui.label(f'v{APP_VERSION}').classes('text-xs text-[var(--clr-surface-a50)]')
+                
+                ui.button('Check for Updates', on_click=lambda: show_update_dialog(manual_check=True)).props('color=purple icon=update')
 
         with ui.card().classes('w-full bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a20)] rounded-[24px] p-6 shadow-lg'):
             ui.label('Account').classes('text-lg font-bold text-[var(--clr-surface-a60)] mb-4')

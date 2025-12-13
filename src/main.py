@@ -8,6 +8,8 @@ import logging
 from utils.resource_path import resource_path
 from ui.layout import main_layout
 from ui.theme import load_theme
+from version import APP_VERSION
+from ui.components.updater_ui import show_update_dialog
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
@@ -57,6 +59,9 @@ def login_page():
         password.on('keydown.enter', try_login)
 
         ui.button('LOGIN', on_click=try_login).props('color=cyan').classes('w-full font-bold shadow-lg')
+
+    # Check for updates on page load
+    ui.timer(0.5, lambda: show_update_dialog(manual_check=False), once=True)
 
 # Main App Page
 @ui.page('/home')
@@ -120,7 +125,7 @@ if __name__ in {"__main__", "__mp_main__"}:
         app.native.window_args['min_size'] = (778, 500)
 
     ui.run(
-        title='BP Lobby Switcher',
+        title=f'BP Lobby Switcher {APP_VERSION}',
         native=True,
         window_size=(1000, 700),
         favicon=icon_path,

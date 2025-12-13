@@ -7,3 +7,5 @@ dist/
 build/
 *.spec
 *.log
+update.new
+data/
