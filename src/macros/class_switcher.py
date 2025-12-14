@@ -132,6 +132,10 @@ class ClassSwitcher:
             
             if not self._click_image(class_image, config_key=target_class):
                 return
+            
+            # Click again to ensure selection (Double tap)
+            time.sleep(0.05)
+            self._click_image(class_image, config_key=target_class, retries=1)
 
             # 4. Click switch_class.png
             if not self._click_image('switch_class.png', config_key='switch_class'):
