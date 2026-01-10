@@ -10,6 +10,7 @@ from ui.layout import main_layout
 from ui.theme import load_theme
 from version import APP_VERSION
 from ui.components.updater_ui import show_update_dialog
+import state
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
@@ -129,7 +130,16 @@ if __name__ in {"__main__", "__mp_main__"}:
         except Exception as e:
             print(f"Could not center window: {e}")
 
+    async def run_dreamstone_monitor():
+        while True:
+            try:
+                state.dreamstone.check()
+            except Exception as e:
+                logging.error(f"Dreamstone monitor error: {e}")
+            await asyncio.sleep(2)
+
     app.on_startup(center_window)
+    app.on_startup(run_dreamstone_monitor)
 
     # Set minimum window size configuration for pywebview
     if hasattr(app, 'native'):

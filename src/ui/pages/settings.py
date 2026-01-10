@@ -1,6 +1,7 @@
 from nicegui import ui
 from ui.components.updater_ui import show_update_dialog
 from version import APP_VERSION
+import state
 
 def settings_page():
     with ui.column().classes('w-full h-full p-6 gap-6'):
@@ -26,6 +27,14 @@ def settings_page():
             with ui.row().classes('w-full justify-between items-center'):
                 ui.label('Notifications').classes('text-[var(--clr-light-a0)]')
                 ui.switch(value=True).props('color=purple')
+            
+            ui.separator().classes('bg-[var(--clr-surface-a20)] my-4')
+            
+            with ui.row().classes('w-full justify-between items-center'):
+                ui.label('Max Dreamstone Alert').classes('text-[var(--clr-light-a0)]')
+                ui.tooltip('Detects 999.png and shows an overlay').classes('bg-black text-white p-2 rounded')
+                # Bind directly to the state
+                ui.switch(on_change=lambda e: setattr(state.dreamstone, 'enabled', e.value)).bind_value(state.dreamstone, 'enabled').props('color=purple')
 
         with ui.card().classes('w-full bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a20)] rounded-[24px] p-6 shadow-lg'):
             ui.label('Updates').classes('text-lg font-bold text-[var(--clr-surface-a60)] mb-4')

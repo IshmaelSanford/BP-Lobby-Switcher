@@ -71,3 +71,48 @@ def find_image_on_screen(image_path, confidence=0.8, grayscale=False):
     except Exception as e:
         logging.error(f"Error finding image: {e}")
         return None
+
+def find_image_box(image_path, confidence=0.8, grayscale=False):
+    """
+    Locates the bounding box of an image on the screen.
+    Returns (left, top, width, height) or None if not found.
+    """
+    if not os.path.exists(image_path):
+        logging.error(f"Image file not found: {image_path}")
+        return None
+
+    try:
+        scale = get_scaling_factor()
+        
+        if 0.98 < scale < 1.02:
+            try:
+                return pyautogui.locateOnScreen(image_path, confidence=confidence, grayscale=grayscale)
+            except pyautogui.ImageNotFoundException:
+                return None
+        else:
+            img = Image.open(image_path)
+            new_width = int(img.width * scale)
+            new_height = int(img.height * scale)
+            # Ensure at least 1x1
+            new_width = max(1, new_width)
+            new_height = max(1, new_height)
+            
+            resized_img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            try:
+                box = pyautogui.locateOnScreen(resized_img, confidence=confidence, grayscale=grayscale)
+            except pyautogui.ImageNotFoundException:
+                box = None
+            
+            # Fallback to original
+            if not box:
+                 try:
+                    box = pyautogui.locateOnScreen(image_path, confidence=confidence, grayscale=grayscale)
+                 except pyautogui.ImageNotFoundException:
+                    box = None
+            
+            return box
+
+    except Exception as e:
+        logging.error(f"Error finding image box {image_path}: {e}")
+        return None

@@ -6,3 +6,4 @@ pillow
 nicegui
 pywebview
 requests
+pytesseract
