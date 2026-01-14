@@ -1,5 +1,5 @@
 from nicegui import ui
-from state import iterator, vote_macro, class_switcher
+from state import iterator, vote_macro, class_switcher, surf_macro
 import pyautogui
 
 def lobby_page():
@@ -54,6 +54,21 @@ def lobby_page():
                             ui.notify('Auto Vote Disabled', color='warning')
 
                     ui.switch(on_change=toggle_vote).props('color=cyan keep-color').classes('mr-2')
+
+                # Auto Surf Toggle
+                with ui.row().classes('w-full gap-4 items-center bg-[var(--clr-surface-a0)] p-3 rounded-2xl border border-[var(--clr-surface-a20)]'):
+                    ui.icon('surfing', color='grey').classes('ml-2')
+                    ui.label('AUTO SURF').classes('flex-1 font-bold text-[var(--clr-light-a0)]')
+                    
+                    def toggle_surf(e):
+                        if e.value:
+                            surf_macro.start()
+                            ui.notify('Auto Surf Enabled', color='positive')
+                        else:
+                            surf_macro.stop()
+                            ui.notify('Auto Surf Disabled', color='warning')
+
+                    ui.switch(on_change=toggle_surf).props('color=cyan keep-color').classes('mr-2')
 
                 # Action Button
                 def toggle_macro():

@@ -7,3 +7,4 @@ nicegui
 pywebview
 requests
 pytesseract
+pydirectinput
